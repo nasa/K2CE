@@ -6,7 +6,7 @@ Since early 2018, the Kepler/K2 project has been performing a uniform global rep
 
 ## Prequisites
 
-The Kepler-K2 Cadence Events application should run on any computer with Python 2.7 .  The application was developed using the open-source Anaconda Distribution of Python 2.7 which is available at <https://www.anaconda.com/distribution>.
+The Kepler-K2 Cadence Events application should run on any computer with Python 3 .  The application was developed using the open-source Anaconda Distribution of Python 2.7 which is available at <https://www.anaconda.com/distribution>.  K2CE has now been ported to Python 3.7.3.
 
 The application uses Lightkurve (<http://docs.lightkurve.org/>) which is a community-developed, open-source Python package which offers a "beautiful and user-freindly way to analyze astronomical flux time seris data".  It was specifically designed to analyze the pixels and lightcurves obtained by NASA's Kepler, K2, and TESS exoplanet missions. Installation instructions are given at the following webpage: <http://docs.lightkurve.org/about/install.html>.
 
