@@ -4,7 +4,7 @@
 
 # file://k2_cadence_envents.py
 
-__version__ = '0.80'
+__version__ = '0.86'
 
 """
 
@@ -46,7 +46,13 @@ ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL TERMINATION OF THIS
 AGREEMENT.
 """
 
-command_line = False
+import sys
+
+pyver = (sys.version_info.major*10) + (sys.version_info.minor)
+if (pyver < 27):
+    print('*** ERROR *** This application needs Python 2.7 or higher.')
+    sys.exit(1)
+pass#if
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -55,15 +61,18 @@ import sys
 import argparse
 import ast
 from astropy.io import fits
+
+command_line = False
+
 try:
     import lightkurve as lk    
 except:
-    print '\n***** ERROR *****\n' 
-    print 'The Python package lightkurve needs to be installed.\n'
-    print 'This is the installation command for lightkurve using pip:\n'
-    print 'pip install lightkurve --upgrade\n'
-    print 'For further installation details see the lightkurve homepage:\n'
-    print 'http://lightkurve.keplerscience.org/install.html\n'
+    print('\n***** ERROR *****\n') 
+    print('The Python package lightkurve needs to be installed.\n')
+    print('This is the installation command for lightkurve using pip:\n')
+    print('pip install lightkurve --upgrade\n')
+    print('For further installation details see the lightkurve homepage:\n')
+    print('http://lightkurve.keplerscience.org/install.html\n')
     sys.exit(1)
 
 def check_file_exists(filename,overwrite):
@@ -75,8 +84,8 @@ def check_file_exists(filename,overwrite):
     msg = 'Requested output file already exists (overwrite=False):\n'
     if (not overwrite):
         if (os.path.isfile(filename)):
-            print '\n***** ERROR *****\n\n',msg
-            print "new_filename='%s'\n" % filename
+            print('\n***** ERROR *****\n\n%s' % (msg))
+            print("new_filename='%s'\n" % filename)
             sys.exit(1)
 pass  #} def
 
@@ -144,7 +153,7 @@ def k2_cadence_events(\
         If True: flux is SAP_FLUX
         If False: flux is PDCSAP_FLUX
     report : bool  [default: False]
-        If True, print out the time, flux, cadence number and
+        If True, print(out the time, flux, cadence number and
         the QUALITY value for each event.
     report_filename : str  [default: None]
         Filename of the report (if any).
@@ -194,24 +203,24 @@ def k2_cadence_events(\
     ftypes = ['Light Curve File','Target Pixel File']
     color = ['dodgerblue','red','slategrey','navy']
     #
-    print '**********************************************'
-    print 'Kepler K2 Cadence Events (k2ce): Version',__version__
-    print '**********************************************'
+    print('**********************************************')
+    print('%s %s' % ('Kepler K2 Cadence Events (k2ce): Version',__version__))
+    print('**********************************************')
     # if no target information given, use this default target:
     if ((filename is None)and(target is None)and(campaign is None)):
         if (command_line):
-            print '\n*******************************************************'
-            print '***** Use --help to see the command line options. *****'
-            print '*******************************************************\n'
+            print('\n*******************************************************')
+            print('***** Use --help to see the command line options. *****')
+            print('*******************************************************\n')
         from_archive = True
         target = '212803289'  # exoplanet K2-99b
         campaign = 17
         cadence = 'short'
-        print '\nUsing default target (exoplanet K2-99b):\n'
-        print '  from_archive=%s' % (from_archive)
-        print '  target=%s' % (target)
-        print '  campaign=%d' % (campaign)
-        print '  cadence=%s' % (cadence)
+        print('\nUsing default target (exoplanet K2-99b):\n')
+        print('  from_archive=%s' % (from_archive))
+        print('  target=%s' % (target))
+        print('  campaign=%d' % (campaign))
+        print('  cadence=%s' % (cadence))
         bitmask_decode = True
     #
     if (filename is not None):
@@ -282,8 +291,8 @@ def k2_cadence_events(\
                 ok = True
             else:
                 str_ = type(objf)
-                print '***** ERROR *****:  '\
-                  'lk.open returned an unknown type of object!'+str_
+                print('***** ERROR *****:  '\
+                  'lk.open returned an unknown type of object!'+str_)
                 sys.exit(1)
     pass #}  if (from_archive):
     assert(ok)
@@ -300,12 +309,12 @@ def k2_cadence_events(\
     path, fn = os.path.split(filename)
     if (len(path)==0):
         path = os.getcwd()
-    print '\nfilename=%s/%s' % (path,fn)
+    print('\nfilename=%s/%s' % (path,fn))
     #
     try:
         telescop = objf.hdu[0].header['TELESCOP']
     except:
-        print '\n***** ERROR *****\n\n','Missing keyword: TELESCOP'
+        print('\n***** ERROR *****\n\nMissing keyword: TELESCOP')
         sys.exit(1)
     telescop = objf.hdu[0].header['TELESCOP']
     if (telescop=='Kepler'):
@@ -336,13 +345,13 @@ def k2_cadence_events(\
         mission = None
     if ((mission is not None)and(obsmode is not None)):
         if (mission=='K2'):
-            print '\n%s/%s %s %s\n' % (telescop,mission,obsmode,ftype)
+            print('\n%s/%s %s %s\n' % (telescop,mission,obsmode,ftype))
         if (mission=='Kepler'):
-            print '\n%s %s %s\n' % (telescop,obsmode,ftype)  
+            print('\n%s %s %s\n' % (telescop,obsmode,ftype))  
     elif (obsmode is not None):
-        print '\n%s %s %s\n' % (telescop,obsmode,ftype)
+        print('\n%s %s %s\n' % (telescop,obsmode,ftype))
     else:
-        print '\n%s %s\n' % (telescop,ftype)
+        print('\n%s %s\n' % (telescop,ftype))
     # 
     time = objf.hdu[1].data['time'].copy()
     cadenceno = objf.hdu[1].data['CADENCENO'].copy()
@@ -368,23 +377,23 @@ def k2_cadence_events(\
     #
     try: 
         campaign = objf.hdu[0].header['CAMPAIGN']  # FITS keyword
-        print 'K2 Campaign %d\n' % campaign
+        print('K2 Campaign %d\n' % campaign)
     except:
         campaign = None
     try: 
         quarter = objf.hdu[0].header['QUARTER']  # FITS keyword
-        print 'Kepler Quarter %d\n' % quarter
+        print('Kepler Quarter %d\n' % quarter)
     except:
         quarter = None
     try: 
         sector = objf.hdu[0].header['SECTOR']  # FITS keyword
-        print 'TESS Sector %d\n' % sector
+        print('TESS Sector %d\n' % sector)
     except:
         sector = None
     bjdrefi = objf.hdu[1].header['BJDREFI']  # FITS keyword
     object = objf.hdu[0].header['OBJECT']  # FITS keyword
-    print 'target: %s\n' % (object)
-    print '%d cadences\n' % (len(time))
+    print('target: %s\n' % (object))
+    print('%d cadences\n' % (len(time)))
     if (bitmask is not None):
         mask = bitmask
     else:
@@ -420,34 +429,37 @@ def k2_cadence_events(\
             mask = bit01+bit02+bit03+bit04+bit05+bit06+bit08+bit10
             assert (mask == 703)
         bitmask = mask
-        print 'Using default bitmask value of %d.' % (bitmask)
+        print('Using default bitmask value of %d.' % (bitmask))
     #
     if (bitmask_decode):
         if (keplerData):
             bitmask_str = '{0:021b}'.format(bitmask)        
-            print '\nThe bitmask value of %d = %s\n' % (bitmask,bitmask_str)
-            print 'translates as\n'
-            print lk.KeplerQualityFlags.decode(bitmask)
+            print('\nThe bitmask value of %d = %s\n' % (bitmask,bitmask_str))
+            print('translates as\n')
+            print(lk.KeplerQualityFlags.decode(bitmask))
         if (tessData):
             bitmask_str = '{0:012b}'.format(bitmask)        
-            print '\nThe bitmask value of %d = %s\n' % (bitmask,bitmask_str)
-            print 'translates as\n'
-            print lk.TessQualityFlags.decode(bitmask)
-        print
+            print('\nThe bitmask value of %d = %s\n' % (bitmask,bitmask_str))
+            print('translates as\n')
+            print(lk.TessQualityFlags.decode(bitmask))
+        print('')
     #
     if (bitmask_flags):
         if (keplerData):
             d = lk.KeplerQualityFlags.STRINGS
             # supply missing dictionary item:
             d[512] = 'This bit unused by Kepler'
-            print '\nName     Value   Explanation (Kepler/K2)'
+            print('\nName     Value   Explanation (Kepler/K2)')
         if (tessData):
             d = lk.TessQualityFlags.STRINGS
-            print '\nName     Value   Explanation (TESS)'
-        list_sorted = sorted( ((k,v) for k,v in d.iteritems()))
+            print('\nName     Value   Explanation (TESS)')
+        if (pyver == 27):
+            list_sorted = sorted( ((k,v) for k,v in d.iteritems()))
+        if (pyver >= 30):
+            list_sorted = sorted( ((k,v) for k,v in d.items()))
         for j,(v,k) in enumerate(list_sorted):
-            print 'Bit%02d  %7d : %s' % ((j+1),v,k)
-        print 
+            print('Bit%02d  %7d : %s' % ((j+1),v,k))
+        print('')
     #
     xx = time
     yy = flux
@@ -517,20 +529,20 @@ def k2_cadence_events(\
                     f.write('%8d %12.6f %16.11f %9d %8d = %s\n' % \
                       (jj, xxx_, yyy_, ccc_, qqq_, qqq_bitmask_str))
             f.close()
-            print
-            print '%s <--- report written  :-)\n' % (report_filename)
-            print
+            print('')
+            print('%s <--- report written  :-)\n' % (report_filename))
+            print('')
         else:
-            print '# REPORT'
-            print '#'
-            print '# %s' % (filename)
-            print '#'
-            print '# %d events with bitmask value of %d (= %s)' %\
-              (n_events,mask,mask_str)
+            print('# REPORT')
+            print('#')
+            print('# %s' % (filename))
+            print('#')
+            print('# %d events with bitmask value of %d (= %s)' %\
+              (n_events,mask,mask_str))
             if (n_events > 0):
-                print '#'
-                print '#  Event         Time  Normalized_Flux  CADENCENO  '\
-                  +'=============QUALITY============'
+                print('#')
+                print('#  Event         Time  Normalized_Flux  CADENCENO  '\
+                  +'=============QUALITY============')
                 for j, (xxx_, yyy_, ccc_, qqq_) in \
                   enumerate(zip(xxx,yyy,ccc,qqq)):
                     if (keplerData):
@@ -538,8 +550,8 @@ def k2_cadence_events(\
                     else:
                         qqq_bitmask_str = '{0:012b}'.format(qqq_)
                     jj = j + 1
-                    print '%8d %12.6f %16.11f %9d %8d = %s' % \
-                      (jj, xxx_, yyy_, ccc_, qqq_, qqq_bitmask_str)        
+                    print('%8d %12.6f %16.11f %9d %8d = %s' % \
+                      (jj, xxx_, yyy_, ccc_, qqq_, qqq_bitmask_str))        
     #
     assert(n_before >= 0)
     assert(n_after >= 0)
@@ -550,7 +562,7 @@ def k2_cadence_events(\
         jje = jdx.size
         jj_min = 0
         jj_max = jje - 1
-        for jj in xrange(jje):
+        for jj in range(jje):
             if (idx[jj]):
                 ccm = cc[jj]
                 ccb = ccm - n_before
@@ -560,7 +572,7 @@ def k2_cadence_events(\
                 je = np.clip(jj + n_after,jj_min,jj_max)
                 assert( je <= jj_max )
                 jn = je - jb + 1
-                for j in xrange(jn):
+                for j in range(jn):
                     k = jb + j
                     cck = cc[k]
                     if ((cck >= ccb)and(cck <= cce)):
@@ -574,7 +586,7 @@ def k2_cadence_events(\
         xmin = xcut_[0]
         xmax = xcut_[1]
         je = kdx.size
-        for j in xrange(je):
+        for j in range(je):
             x_ = xx[j]
             if (np.isfinite(x_)):
                 if ((x_ >= xmin)and(x_ <= xmax)):
@@ -589,7 +601,7 @@ def k2_cadence_events(\
         ymin = ycut_[0]
         ymax = ycut_[1]
         je = kdx.size
-        for j in xrange(je):
+        for j in range(je):
             y_ = yy[j]
             if (np.isfinite(y_)):
                 if ((y_ >= ymin)and(y_ <= ymax)):
@@ -632,7 +644,7 @@ def k2_cadence_events(\
     if (plotfile is not None):
         check_file_exists(plotfile,overwrite)
         plt.savefig(plotfile,dpi=300)
-        print '%s <--- plotfile written  :-)\n' % (plotfile)
+        print('%s <--- plotfile written  :-)\n' % (plotfile))
         #plt.show()
         plt.close()
     if (show_plot):
@@ -644,9 +656,9 @@ def k2_cadence_events(\
         hdul[1].data = hdul[1].data[~idx]
         hdul.writeto(new_filename,overwrite=overwrite)
         hdul.close()       
-        print
-        print '%s  <--- new FITS file written  :-)\n' % (new_filename)
-        print
+        print('')
+        print('%s  <--- new FITS file written  :-)\n' % (new_filename))
+        print('')
     sys.stdout.flush()
     return (ax, n_events, objf, idx)
 pass  #} def
@@ -723,7 +735,7 @@ if __name__ == "__main__":
       help='If True, flux is SAP_FLUX. If False, flux is PDCSAP_FLUX '\
       +'[default: True]')
     parser.add_argument('--report',type=str2bool,default=False,
-      help='If True, print out the time, flux, cadence number and the '\
+      help='If True, print(out the time, flux, cadence number and the '\
         +'QUALITY value fore each event [default: False]')
     parser.add_argument('--report_filename', action="store", type=str, 
       default=None,help='Filename of the report (if any) [default: None]')
@@ -763,38 +775,42 @@ if __name__ == "__main__":
     #
     args = parser.parse_args()
     #
+    #verbose = True  # DEBUG
     if (verbose):
-        print args.filename,'=args.filename'
-        print args.bitmask,'=args.bitmask'
-        print args.from_archive,'=args.from_archive'
-        print args.target,'=args_target'
-        print args.cadence,'=args_cadence'
-        print args.campaign,'=args.campaign'
-        print args.tag,'=args.tag'
-        print args.plotfile,'=args.plotfile'
-        print args.scatter,'=args.scatter'
-        print args.bars_yy,'=args.bars_yy'
-        print args.xlim,'=args.xlim'
-        print args.ylim,'=args.ylim'
-        print args.SAP_FLUX,'=args.SAP_FLUX'
-        print args.report,'=args.report'
-        print args.report_filename,'=args.report_filename'
-        print args.n_before,'=args.n_before'
-        print args.n_after,'=args.n_after'
-        print args.bitmask_decode,'=args.bitmask_decode'
-        print args.bitmask_flags,'=args.bitmask_flags'
-        print args.show_plot,'=args.show_plot'
-        print args.new_filename,'=args.new_filename'
-        print args.overwrite,'=args.overwrite'
-        print args.useTPF,'=args.useTPF'
-        print args.xcut,'=args.xcut'
-        print args.ycut,'=args.ycut'
-        print __version__,'=__version__'
+        print('%s =args.filename' % (args.filename))
+        print('%s =args.bitmask' % (args.bitmask))
+        print('%s =args.from_archive' % args.from_archive)
+        print('%s =args_target' % (args.target))
+        print('%s =args_cadence' % (args.target))
+        print('%s =args.campaign' % (args.campaign))
+        print('%s =args.tag' % (args.tag))
+        print('%s =args.plotfile' % (args.plotfile))
+        print('%s =args.scatter' % (args.scatter))
+        print('%s =args.bars_yy' % (args.bars_yy))
+        print('%s =args.xlim' % (args.xlim))
+        print('%s =args.ylim' % (args.ylim))
+        print('%s =args.SAP_FLUX' % (args.SAP_FLUX))
+        print('%s =args.report' % (args.report))
+        print('%s =args.report_filename' % (args.report_filename))
+        
+        #bingo start here 2019SEP15
+                
+        print('%s =args.n_before' % (args.n_before))
+        print('%s =args.n_after' % (args.n_after))
+        print('%s =args.bitmask_decode' % (args.bitmask_decode))
+        print('%s =args.bitmask_flags' % (args.bitmask_flags))
+        print('%s=args.show_plot' % (args.show_plot))
+        print('%s =args.new_filename' % (args.new_filename))
+        print('%s =args.overwrite' % (args.overwrite))
+        print('%s =args.useTPF' % (args.useTPF))
+        print('%s =args.xcut' % (args.xcut))
+        print('%s =args.ycut' % (args.ycut))
+        print('%s =__version__' % (__version__))
     #
     if ((args.plotfile is not None) and (args.show_plot)):
         args.show_plot = False
-        print '\n*** NOTE BENE *** : The plot will not be shown '\
-          +'because the plot was written to the plotfile.\n'
+        print('\n*** NOTE BENE *** : The plot will not be shown '\
+          +'because the plot was written to the plotfile.\n')
     #
     _, n_events, _, idx_ = k2_cadence_events(filename=args.filename,
       bitmask=args.bitmask,
@@ -821,10 +837,10 @@ if __name__ == "__main__":
       useTPF=args.useTPF,
       xcut=args.xcut,
       ycut=args.ycut)
-    print '\n%d events\n' % n_events
+    print('\n%d events\n' % n_events)
     flagged = np.count_nonzero(idx_)
-    print '%d cadences flagged' % (flagged)
-    #print '\n',lk.__version__,'=lk.__version__'
+    print('%d cadences flagged' % (flagged))
+    #print('\n',lk.__version__,'=lk.__version__'
 pass  #} if __name__ == "__main__":
       
 #EOF
