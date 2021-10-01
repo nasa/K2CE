@@ -1,4 +1,4 @@
-# Auto detect text files and perform LF normalization
+# Auto detect text files and perform LF normalization #2021OCT01
 * text=auto
 *.py linguist-detectable=true
 *.ipynb linguist-detectable=false
